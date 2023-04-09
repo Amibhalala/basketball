@@ -1,0 +1,11 @@
+{
+    "env": {
+        "NODE_ENV":"development",
+        "POSTGRES_USER":"postgres",
+        "POSTGRES_PASSWORD":"postgres",
+        "POSTGRES_DB":"postgres",
+        "POSTGRES_HOST":"18.205.117.79",
+        "POSTGRES_PORT":5432,
+        "API_PORT":8000
+    }
+}
