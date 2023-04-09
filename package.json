@@ -1,0 +1,16 @@
+{
+  "name": "phiture",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=14.17.0"
+  },
+  "private": true,
+  "workspaces": [
+    "API",
+    "basketball"
+  ],
+  "packageManager": "yarn@3.0.2",
+  "devDependencies": {
+    "lerna": "^6.6.1"
+  }
+}

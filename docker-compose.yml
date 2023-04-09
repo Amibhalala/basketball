@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+    postgres:
+        image: postgres
+        container_name: postgres
+        restart: always
+        environment:
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+        logging:
+          options:
+            max-size: 10m
+            max-file: "3"
+        ports:
+          - '5432:5432'
+        volumes: 
+          - ./Postgres:/tmp
+          - ./postgres-db:/var/lib/postgresql/data
+          - ./Postgres/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    api:
+        build: ./API
+        image: api
+        container_name: api
+        restart: always
+        environment:
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+          - POSTGRES_DB=postgres
+          - POSTGRES_HOST=18.205.117.79
+          - POSTGRES_PORT=5432
+          - API_PORT=8000
+          - API_URL=http://localhost:8000
+        logging:
+          options:
+            max-size: 10m
+            max-file: "3"
+        ports:
+          - '8000:8000'
