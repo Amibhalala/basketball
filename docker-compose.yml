@@ -12,7 +12,7 @@ services:
             max-size: 10m
             max-file: "3"
         ports:
-          - '5432:5432'
+          - '35432:5432'
         networks:
           - app-network
         volumes: 
@@ -21,6 +21,8 @@ services:
           - ./Postgres/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     api:
         build: ./API
+        depends_on:
+        - postgres
         image: api
         container_name: api
         restart: always
@@ -31,13 +33,29 @@ services:
           - POSTGRES_HOST=postgres
           - POSTGRES_PORT=5432
           - API_PORT=8000
-          - API_URL=http://localhost:8000
         logging:
           options:
             max-size: 10m
             max-file: "3"
         ports:
-          - '8000:8000'
+          - '9000:8000'
+        networks:
+          - app-network
+    app:
+        build: ./basketball
+        depends_on:
+        - postgres
+        image: app
+        container_name: app
+        restart: always
+        environment:
+          - REACT_APP_POSTGRES_URL=http://api:9000/
+        logging:
+          options:
+            max-size: 10m
+            max-file: "3"
+        ports:
+          - '3000:3000'
         networks:
           - app-network
 networks:
