@@ -5,11 +5,6 @@
   "scripts": {
     "build": "tsc",
     "start": "concurrently \"tsc -w\" \"nodemon build/index.js\"",
-    "buildContainerImage": "docker build -t api-gateway:1.0.0 .",
-    "logInToECR": "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 962511025598.dkr.ecr.ap-south-1.amazonaws.com",
-    "tagContainerImage": "docker tag api-gateway:1.0.0 962511025598.dkr.ecr.ap-south-1.amazonaws.com/api-gateway:1.0.0",
-    "pushContainerImage": "docker push 962511025598.dkr.ecr.ap-south-1.amazonaws.com/api-gateway:1.0.0",
-    "pushToECR": "npm run logInToECR && npm run buildContainerImage && npm run tagContainerImage && npm run pushContainerImage",
     "test": "jest"
   },
   "dependencies": {

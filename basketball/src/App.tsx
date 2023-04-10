@@ -7,13 +7,6 @@ function App() {
       <PlayerProvider>
       <PlayerList/>
       </PlayerProvider>
-      {/* {
-       playerList?.length>0 && playerList?.map((item) =>
-        <div key={item.player_id}>
-          {item}
-          </div>
-        )
-      } */}
     </div>
   );
 }

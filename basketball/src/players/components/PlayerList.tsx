@@ -20,27 +20,30 @@ export const PlayerList = () => {
   const [isCreateLoading,setIsCreateLoading]= useState(false);
 
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Name', width: 130,align:"left",headerAlign:"left", sortable: false, },
-    { field: 'height', headerName: 'Height', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false },
-    { field: 'width', headerName: 'Width', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false },
-    { field: 'weight', headerName: 'Weight', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false },
-    { field: 'college', headerName: 'College', width: 250, type: 'number', align:"left",headerAlign:"left",sortable: false },
-    { field: 'position', headerName: 'Position', width: 130,align:"left",headerAlign:"left", sortable: false  },
+    { field: 'name', headerName: 'Name', width: 130,align:"left",headerAlign:"left", sortable: false, filterable:false},
+    { field: 'height', headerName: 'Height', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false , filterable:false},
+    { field: 'width', headerName: 'Width', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false, filterable:false },
+    { field: 'weight', headerName: 'Weight', width: 130, type: 'number',align:"left",headerAlign:"left",sortable: false, filterable:false },
+    { field: 'college', headerName: 'College', width: 250, type: 'number', align:"left",headerAlign:"left",sortable: false, filterable:false },
+    { field: 'position', headerName: 'Position', width: 130,align:"left",headerAlign:"left", sortable: false, filterable:false  },
     {
       field: 'born',
       headerName: 'Born',
       type: 'number',
       width: 130,
-      align:"left",headerAlign:"left"
+      align:"left",headerAlign:"left",
+      sortable:false,
+      filterable:false
     },
-    { field: 'birth_city', headerName: 'Birth City', width: 150,align:"left",headerAlign:"left",sortable: false },
-    { field: 'birth_state', headerName: 'Birth State', width: 150,align:"left",headerAlign:"left", sortable: false },
-    { field: 'year_start', headerName: 'Year Start', width: 140,align:"left",headerAlign:"left", sortable: false },
-    { field: 'year_end', headerName: 'Year End', width: 140,align:"left",headerAlign:"left",sortable: false },
+    { field: 'birth_city', headerName: 'Birth City', width: 150,align:"left",headerAlign:"left",sortable: false,filterable:false },
+    { field: 'birth_state', headerName: 'Birth State', width: 150,align:"left",headerAlign:"left", sortable: false,filterable:false },
+    { field: 'year_start', headerName: 'Year Start', width: 140,align:"left",headerAlign:"left", sortable: false,filterable:false },
+    { field: 'year_end', headerName: 'Year End', width: 140,align:"left",headerAlign:"left",sortable: false,filterable:false },
     {
       field: 'action',
       headerName: 'Action',
       sortable: false,
+      filterable:false,
       renderCell: (params) => {
         const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 
@@ -94,15 +97,16 @@ export const PlayerList = () => {
         console.error('Error in deleting player',error);
       })
   }
-   const fetchPlayers= (page:number,pageSize:number,add:boolean) =>{
+   const fetchPlayers= async (page:number,pageSize:number,add:boolean) =>{
    
     const params = getRequestParams( page, pageSize);
     setIsLoading(true)
-    PlayerService.getPlayers(params)
+    await PlayerService.getPlayers(params)
       .then((response:any) => {
         const data = response.data;
         const players: Player[]=data?.players ?? [];
         const count: number=data?.totalPages ?? 0;
+        console.log('lol',players,add,count)
         playersDispatch({type:'fetch',payload:{add,data:players,count}})
       })
       .catch((error) => {
@@ -117,12 +121,12 @@ export const PlayerList = () => {
     setPagination({...pagination,page})
      fetchPlayers(page,pagination.pageSize,true);
   }
-  const  createPlayer = (data:any) => {
+  const  createPlayer = async (data:any) => {
     setIsCreateLoading(true)
-    PlayerService.createPlayer(data?.player)
+    await PlayerService.createPlayer(data?.player)
     .then(async(response:any) => {
-        if(pagination.page==count){
-        fetchPlayers(pagination.page,pagination.pageSize,true);
+        if(pagination.page===count){
+         await fetchPlayers(pagination.page,pagination.pageSize,true);
         }
         handleClose()
       })
@@ -134,7 +138,6 @@ export const PlayerList = () => {
       })
 
   }
-
   return (
     <div className="player-list" style={{ height: 400, width: '100%' }}>
       <div style={{margin:'50px 10px', textAlign:'right'}}>
@@ -159,4 +162,3 @@ export const PlayerList = () => {
     </div>
   );
 }
-// getRowId={(row: any) =>  row?.player_id}

@@ -18,16 +18,16 @@ const getPagingData = (data:any, page: number, limit:number) => {
 };
 export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
   const { page, size } = req.query;
-  const { limit, offset } = getPagination(Number.parseInt(page), Number.parseInt(size));
+  const { limit, offset } = getPagination(Number(page), Number(size));
 
-  Player.findAndCountAll({ limit, offset, order: [
+  await Player.findAndCountAll({ limit, offset, order: [
     ['player_id', 'ASC'],
 ],})
-  .then((data) => {
-    const result = getPagingData(data, page, limit);
+  .then((data:any) => {
+    const result = getPagingData(data, Number(page), limit);
     res.status(200).json(result);
   })
-  .catch((error) => {
+  .catch((error:any) => {
     res.status(500).send({
       message:
       error.message || "Some error occurred while retrieving players."
@@ -39,7 +39,7 @@ export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
 export const createPlayer = async (req: Request, res: Response): Promise<void> => {
     try {
       const body = req.body as Pick<IPlayer,"name" |"height" |"width" |"college" |"born" |"birth_city" |"birth_state" |"year_start" |"year_end" |"position" |"weight" |"birth_date">
-      if (!req.body.name) {
+      if (!body?.name) {
         res.status(400).send({
           message: "Content create empty data!"
         });
@@ -59,7 +59,7 @@ export const createPlayer = async (req: Request, res: Response): Promise<void> =
         weight: body.weight ??  null,
         birth_date: body?.birth_date ??  null
       };
-      Player.create(player)
+      await Player.create(player)
       .then((data:any) => {
         res.status(201).send({
           status: "success",
@@ -67,6 +67,7 @@ export const createPlayer = async (req: Request, res: Response): Promise<void> =
           player:data
         })
       })
+      .catch((error:any)=> {throw error})
     } catch (error) {
       res.status(400).json({
         error: "Some error occurred while creating the player.",
@@ -79,17 +80,17 @@ export const createPlayer = async (req: Request, res: Response): Promise<void> =
 export const deletePlayer = async (req: Request, res: Response): Promise<void> => {
     try {
       const playerId=Number.parseInt(req?.params?.id)
-      if (!playerId) {
+      if (isNaN(playerId)) {
         res.status(400).send({
           message: "Player Id is required!"
         });
         return;
       }
 
-      Player.destroy({
+      await Player.destroy({
         where: { player_id: playerId }
       })
-        .then((status) => {
+        .then((status:any) => {
           if (status == 1) {
             res.status(201).json({
               status: "success",

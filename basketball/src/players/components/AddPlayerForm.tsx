@@ -89,9 +89,6 @@ interface AddPlayerFormProps {
         <LoadingButton type="submit" color="primary" loading={isLoading}>
           Submit
         </LoadingButton>
-        {/* <Button type="submit" color="primary">
-          Submit
-        </Button> */}
       </DialogActions>
         </form>
     </Dialog>

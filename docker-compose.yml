@@ -12,7 +12,7 @@ services:
             max-size: 10m
             max-file: "3"
         ports:
-          - '35432:5432'
+          - '5432:5432'
         networks:
           - app-network
         volumes: 
@@ -38,26 +38,26 @@ services:
             max-size: 10m
             max-file: "3"
         ports:
-          - '9000:8000'
+          - '8000:8000'
         networks:
           - app-network
-    app:
-        build: ./basketball
-        depends_on:
-        - postgres
-        image: app
-        container_name: app
-        restart: always
-        environment:
-          - REACT_APP_POSTGRES_URL=http://api:9000/
-        logging:
-          options:
-            max-size: 10m
-            max-file: "3"
-        ports:
-          - '3000:3000'
-        networks:
-          - app-network
+    # app:
+    #     build: ./basketball
+    #     depends_on:
+    #     - postgres
+    #     image: app
+    #     container_name: app
+    #     restart: always
+    #     environment:
+    #       - REACT_APP_POSTGRES_URL=http://localhost:8000/
+    #     logging:
+    #       options:
+    #         max-size: 10m
+    #         max-file: "3"
+    #     ports:
+    #       - '3000:3000'
+    #     networks:
+    #       - app-network
 networks:
   app-network:
     name: app-network

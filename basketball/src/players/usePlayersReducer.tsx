@@ -13,7 +13,7 @@ export function usePlayersReducer(): [PlayersState, React.Dispatch<PlayersAction
   const playerReducer =  (state: PlayersState, action: PlayersAction): PlayersState => {
     switch (action.type) {
       case 'fetch':
-        return { ...state,initialized:true,players:action.payload.add ?  [...state.players,...action.payload.data] :[...action.payload.data]  ,count:action.payload.count };
+        return { ...state,initialized:true,players:action.payload.add ?  [...action.payload.data,...state.players] :[...action.payload.data]  ,count:action.payload.count };
 
       case 'add':
         return { ...state, players:[...state.players,{...action.payload.player}] };
@@ -23,7 +23,7 @@ export function usePlayersReducer(): [PlayersState, React.Dispatch<PlayersAction
         return { ...state, players:players };
 
       default:
-        return state
+        return state   
     }
   };
 
