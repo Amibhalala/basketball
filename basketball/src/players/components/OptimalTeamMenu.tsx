@@ -36,7 +36,7 @@ const OptimalTeamMenu = () => {
       <div style={{ margin: '50px 0' }}>
         <TextField
           id="points-sum"
-          label="Name"
+          label="Total Points"
           value={pointsSum}
           type="number"
           placeholder="Enter total points"
