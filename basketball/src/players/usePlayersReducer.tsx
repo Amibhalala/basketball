@@ -16,7 +16,7 @@ export function usePlayersReducer(): [PlayersState, React.Dispatch<PlayersAction
         return { ...state,initialized:true,players:action.payload.add ?  [...action.payload.data,...state.players] :[...action.payload.data]  ,count:action.payload.count };
 
       case 'add':
-        return { ...state, players:[...state.players,{...action.payload.player}] };
+        return { ...state, players:[{...action.payload.player},...state.players] };
 
       case 'delete':
         const players = state.players.filter((player)=> player.player_id !== action.payload.playerId)

@@ -1,7 +1,8 @@
 const  Player  = require('../../models/player');
-import { Response, Request } from "express";
+const { QueryTypes } = require('sequelize');
+import { Response, Request, response } from "express";
 import { IPlayer } from "../../types/player";
-
+const { sq } = require('../../config/db');
 const getPagination = (page:number, size:number) => {
   const limit = size ? +size : 5;
   const offset = page ? page * limit : 0;
@@ -16,35 +17,63 @@ const getPagingData = (data:any, page: number, limit:number) => {
 
   return { totalItems, players, totalPages, currentPage };
 };
-export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
-  const { page, size } = req.query;
-  const { limit, offset } = getPagination(Number(page), Number(size));
 
-  // 5 Best players query this part I am not sure that is why added comments
-  // SELECT s.name, s.age, s.points, s.position
-  // FROM season_stats s
-  // WHERE s.points <= 4000 AND s.position IN ('PG', 'SG', 'SF', 'PF', 'C')
-  // AND (
-  //   s.position = 'PG' AND s.name IN (
-  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'PG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
-  //   )
-  //   OR s.position = 'SG' AND s.name IN (
-  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'SG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
-  //   )
-  //   OR s.position = 'SF' AND s.name IN (
-  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'SF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
-  //   )
-  //   OR s.position = 'PF' AND s.name IN (
-  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'PF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
-  //   )
-  //   OR s.position = 'C' AND s.name IN (
-  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'C' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
-  //   )
-  // )
-  // ORDER BY s.age ASC, s.points DESC, s.games ASC
-  // LIMIT 5;
+//Based on my assumption I have written this query
+const getBestPlayesByPointsSumQuery = (pointsSum:number):string=>{
+  return   `SELECT p.name, p.height, p.width, p.weight, p.college, p.born, p.birth_city, p.birth_state, s.points, s.position
+FROM player p
+JOIN season_stats s ON p.name = s.name
+WHERE s.points <= ${pointsSum} AND s.position IN ('PG', 'SG', 'SF', 'PF', 'C')
+AND (
+  s.position = 'PG' AND s.name IN (
+    SELECT name FROM season_stats WHERE points <= ${pointsSum} AND position = 'PG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  )
+  OR s.position = 'SG' AND s.name IN (
+    SELECT name FROM season_stats WHERE points <= ${pointsSum} AND position = 'SG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  )
+  OR s.position = 'SF' AND s.name IN (
+    SELECT name FROM season_stats WHERE points <= ${pointsSum} AND position = 'SF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  )
+  OR s.position = 'PF' AND s.name IN (
+    SELECT name FROM season_stats WHERE points <= ${pointsSum} AND position = 'PF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  )
+  OR s.position = 'C' AND s.name IN (
+    SELECT name FROM season_stats WHERE points <= ${pointsSum} AND position = 'C' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  )
+)
+ORDER BY s.age ASC, s.points DESC, s.games ASC
+LIMIT 5`;
+}
+export const getBestPlayesByPointsSum = async (pointsSum:number, res: Response):Promise<void> => {
+  await sq.query(getBestPlayesByPointsSumQuery(pointsSum),{ raw:true,type: QueryTypes.SELECT })
+  .then((result:any) => {
+    res.status(200).json(result);
+  })
+  .catch((error:any) => {
+    res.status(500).send({
+      message:
+      error.message || "Some error occurred while retrieving best players."
+    });
+  });
+}
+export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
+  try{
+  const { page, size, points_sum } = req.query;
+  const pointsSum = Number(points_sum);
+  const { limit, offset } = getPagination(Number(page), Number(size));
+  if(points_sum && isNaN(pointsSum)){
+    res.status(400).send({
+      message: "Points sum is invalid!"
+    });
+    return;
+  }
+  if (pointsSum > 0){
+    await getBestPlayesByPointsSum(pointsSum,res)
+    return;
+  }
+
   await Player.findAndCountAll({ limit, offset, order: [
-    ['player_id', 'ASC'],
+    ['player_id', 'DESC'],
 ],})
   .then((data:any) => {
     const result = getPagingData(data, Number(page), limit);
@@ -56,6 +85,13 @@ export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
       error.message || "Some error occurred while retrieving players."
     });
   });
+}
+catch(error){
+    res.status(400).json({
+      error: "Some error occurred while retrieving the player.",
+    });
+    throw error
+  }
 }
 
   
