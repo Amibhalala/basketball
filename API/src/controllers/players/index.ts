@@ -20,6 +20,29 @@ export const getPlayers = async(req: Request, res: Response): Promise<void>=> {
   const { page, size } = req.query;
   const { limit, offset } = getPagination(Number(page), Number(size));
 
+  // 5 Best players query this part I am not sure that is why added comments
+  // SELECT s.name, s.age, s.points, s.position
+  // FROM season_stats s
+  // WHERE s.points <= 4000 AND s.position IN ('PG', 'SG', 'SF', 'PF', 'C')
+  // AND (
+  //   s.position = 'PG' AND s.name IN (
+  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'PG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  //   )
+  //   OR s.position = 'SG' AND s.name IN (
+  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'SG' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  //   )
+  //   OR s.position = 'SF' AND s.name IN (
+  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'SF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  //   )
+  //   OR s.position = 'PF' AND s.name IN (
+  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'PF' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  //   )
+  //   OR s.position = 'C' AND s.name IN (
+  //     SELECT name FROM season_stats WHERE points <= 4000 AND position = 'C' ORDER BY Age ASC, points DESC, Games ASC LIMIT 1
+  //   )
+  // )
+  // ORDER BY s.age ASC, s.points DESC, s.games ASC
+  // LIMIT 5;
   await Player.findAndCountAll({ limit, offset, order: [
     ['player_id', 'ASC'],
 ],})
